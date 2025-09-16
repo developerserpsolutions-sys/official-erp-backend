@@ -8,7 +8,7 @@ export const createLicense = async (req, res) => {
       companyCode,
       subscriptionType,
       features,
-      companyName,
+      companyName, 
       businessType,
       contactPerson,
       designation,

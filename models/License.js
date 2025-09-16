@@ -10,6 +10,7 @@ const LicenseSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
+    trim: true
   },
   clientID: {
     type: String,
@@ -53,6 +54,7 @@ const LicenseSchema = new mongoose.Schema({
   companyName: {
     type: String,
     required: true,
+    trim: true
   },
   registrationDate: {
     type: Date,
@@ -88,13 +90,14 @@ const LicenseSchema = new mongoose.Schema({
   address: {
     type: String,
     required: true,
+    trim: true
   },
-  city: { type: String, required: true },
-  state: { type: String, required: true },
-  country: { type: String, required: true },
-  pincode: { type: String, required: true },
-  mobile: { type: String, required: true },
-  emailId: { type: String, required: true },
+  city: { type: String, required: true, trim: true },
+  state: { type: String, required: true, trim: true },
+  country: { type: String, required: true, trim: true },
+  pincode: { type: String, required: true, trim: true },
+  mobile: { type: String, required: true, trim: true },
+  emailId: { type: String, required: true, trim: true, lowercase: true },
   gstinRegistration: { type: String, required: true },
   gstin: { type: String, required: true },
   isActive: {

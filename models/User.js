@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { trim } from "validator";
 
 const UserSchema = new mongoose.Schema({
   clientID: {
@@ -15,6 +16,8 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
+    trim: true,
+    lowercase: true,
   },
   userGeoData: {
     countryCode: { type: String, default: null},
@@ -32,6 +35,8 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
+    trim: true,
+    lowercase: true,
   },
   department: {
     enum: ["HR", "Finance", "IT", "Sales", "Marketing", "Operations", "Support"],
