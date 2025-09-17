@@ -17,10 +17,12 @@ app.use(express.urlencoded({ extended: true }));
 //Routes
 import licenseRoutes from "./routes/licenseRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
+import dropDownDataRoutes from "./routes/dropDownDataRoutes.js";
 
 //v1
 app.use("/api/v1/license", licenseRoutes);
 app.use("/api/v1/user", userRoutes);
+app.use("/api/v1/get-dropdown-data", dropDownDataRoutes);
 
 
 

@@ -43,7 +43,7 @@ export const auth = async (req, res, next) => {
 
 exports.isSuperAdmin = async (req, res, next) => {
  try{
-        if(req.user.accountType !== "SuperAdmin") {
+        if(req.user.accountType !== "SuperAdmin" && req.user_id !== process.env.SUPERADMIN_ID) {
             return res.status(401).json({
                 success:false,
                 message:'This is a protected route for SuperAdmins only',
