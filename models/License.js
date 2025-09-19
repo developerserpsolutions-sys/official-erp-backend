@@ -40,17 +40,18 @@ const LicenseSchema = new mongoose.Schema({
     enum: ["active", "expired", "revoked"],
     default: "active",
   },
-  features: [
-    {
-      module: { type: String, required: true },
-      submodules: [
-        {
-          name: { type: String, required: true },
-          selected: { type: Boolean, default: false }
-        }
-      ]
-    }
-  ],
+ modules: [
+  {
+    moduleId: { type: String, required: true },
+    moduleName: { type: String, required: true },
+    subModules: [
+      {
+        subModuleId: { type: String, required: true },
+        subModuleName: { type: String, required: true },
+      }
+    ]
+  }
+],
   companyName: {
     type: String,
     required: true,
@@ -62,20 +63,7 @@ const LicenseSchema = new mongoose.Schema({
   },
   businessType: {
     type: String,
-    enum: [
-      "Manufacturing",
-      "Retail",
-      "Service",
-      "Wholesale",
-      "Construction",
-      "Agriculture",
-      "Finance",
-      "Transportation",
-      "Healthcare",
-      "Education",
-      "Hospitality",
-      "Other"
-    ],
+    trim: true,
     required: true,
   },
   contactPerson: {
@@ -98,7 +86,7 @@ const LicenseSchema = new mongoose.Schema({
   pincode: { type: String, required: true, trim: true },
   mobile: { type: String, required: true, trim: true },
   emailId: { type: String, required: true, trim: true, lowercase: true },
-  gstinRegistration: { type: String, required: true },
+  gstinRegistration: { type: Boolean, required: true },
   gstin: { type: String, required: true },
   isActive: {
     type: Boolean,

@@ -1,3 +1,22 @@
+const RAW_MODULES = [
+  {
+    moduleId: "M001",
+    moduleName: "Inventory Management",
+    subModules: [
+      { subModuleId: "SM001", subModuleName: "Stock Entry" },
+      { subModuleId: "SM002", subModuleName: "Stock Report" },
+    ],
+  },
+  {
+    moduleId: "M002",
+    moduleName: "Sales",
+    subModules: [
+      { subModuleId: "SM005", subModuleName: "Invoices" },
+      { subModuleId: "SM006", subModuleName: "Orders" },
+    ],
+  },
+];
+
 export const getDropDownData = async (req, res) => {
   const { businessObject } = req.params;
 
@@ -36,6 +55,7 @@ export const getDropDownData = async (req, res) => {
         "Operations",
         "Support",
       ],
+      modules: RAW_MODULES,
     };
 
     const options = dropdowns[businessObject];
@@ -47,10 +67,22 @@ export const getDropDownData = async (req, res) => {
       });
     }
 
-    const data = options.map((item) => ({
-      label: item,
-      value: item,
-    }));
+    let data;
+    if (businessObject === "modules") {
+      data = options.map((mod) => ({
+        label: mod.moduleName,
+        value: mod.moduleId,
+        subModules: mod.subModules.map((sub) => ({
+          label: sub.subModuleName,
+          value: sub.subModuleId,
+        })),
+      }));
+    } else {
+      data = options.map((item) => ({
+        label: item,
+        value: item,
+      }));
+    }
 
     return res.status(200).json({
       success: true,

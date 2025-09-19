@@ -5,6 +5,6 @@ import { createLicense, updateLicense } from "../controllers/licenseController.j
 const router = express.Router();
 
 router.post("/create-license", createLicense);
-router.put("/update-license/:licenseId", updateLicense);
+router.put("/update-license/:licenseID", updateLicense);
 
 export default router;
