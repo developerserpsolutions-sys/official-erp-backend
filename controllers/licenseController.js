@@ -190,8 +190,37 @@ export const updateLicense = async (req, res) => {
   }
 };
 
+export const getCompanyByCode = async (req, res) => {
+  try {
+    const { companyCode } = req.params;
 
+    const company = await License.findOne({ companyCode })
+      .select(
+        "companyCode subscriptionType modules companyName businessType contactPerson designation address city state country pincode mobile emailId gstinRegistration gstin entity"
+      )
+      .lean();
+      
+    if (!company) {
+      return res.status(404).json({
+        success: false,
+        message: "Company not found",
+      });
+    }
 
+    res.status(200).json({
+      success: true,
+      message: "Company retrieved successfully",
+      data: company,
+    });
+  } catch (error) {
+    console.error("Error retrieving company:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message,
+    });
+  }
+};
 
 export const deleteLicense = async (req, res) => {
   try {
