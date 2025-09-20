@@ -19,8 +19,8 @@ const LicenseSchema = new mongoose.Schema({
   },
   subscriptionType: {
     type: String,
-    enum: ["trial", "enterprise"],
-    default: "trial",
+    trim: true,
+    default: "Trial",
   },
   startDate: {
     type: Date,
@@ -29,7 +29,7 @@ const LicenseSchema = new mongoose.Schema({
   endDate: {
     type: Date,
     default: function () {
-        if(this.subscriptionType === "trial") {
+        if(this.subscriptionType === "Trial") {
             return new Date(this.startDate.getTime() + 30 * 24 * 60 * 60 * 1000);
         }
         return new Date(this.startDate.getTime() + 365 * 24 * 60 * 60 * 1000);
@@ -37,8 +37,8 @@ const LicenseSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ["active", "expired", "revoked"],
-    default: "active",
+    trim: true,
+    default: "Active",
   },
  modules: [
   {
@@ -72,7 +72,7 @@ const LicenseSchema = new mongoose.Schema({
   },
   designation: {
     type: String,
-    enum: ["Owner", "Director", "Manager", "Executive"],
+    trim: true,
     required: true,
   },
   address: {
