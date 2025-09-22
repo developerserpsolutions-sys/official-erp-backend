@@ -1,4 +1,4 @@
-import bcrypt from "bcryptjs";
+import bcrypt from "bcrypt";
 // import OTP from "../models/OTP";
 import jwt from "jsonwebtoken";
 // import otpGenerator from "otp-generator";

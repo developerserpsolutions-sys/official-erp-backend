@@ -19,7 +19,8 @@ app.use(express.urlencoded({ extended: true }));
 const corsOptions = {
   origin: [
     "http://localhost:3000",
-    "http://192.168.0.103:3000"
+    "http://192.168.0.103:3000",
+    "http://192.168.29.198:3000"
   ],
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"],
@@ -32,11 +33,14 @@ app.use(cors(corsOptions));
 import licenseRoutes from "./routes/licenseRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import dropDownDataRoutes from "./routes/dropDownDataRoutes.js";
+import superAdminRoutes from "./routes/superAdminRoutes.js"
+
 
 //v1
 app.use("/api/v1/license", licenseRoutes);
 app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/get-dropdown-data", dropDownDataRoutes);
+app.use("/api/v1/super-admin", superAdminRoutes);
 
 
 

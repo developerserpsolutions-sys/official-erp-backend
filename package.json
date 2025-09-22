@@ -27,7 +27,7 @@
     "prettier": "^3.4.2"
   },
   "dependencies": {
-    "bcryptjs": "^2.4.3",
+    "bcrypt": "^6.0.0",
     "cloudinary": "^2.5.1",
     "cors": "^2.8.5",
     "crypto": "^1.0.1",
