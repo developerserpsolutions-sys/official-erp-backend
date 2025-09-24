@@ -24,34 +24,45 @@ export const createLicense = async (req, res) => {
       entity,
     } = req.body;
 
-    console.log(req.body);
-
     if(!companyCode || !subscriptionType || !modules || !companyName || !businessType || !contactPerson || !designation || !address || !city || !state || !country || !pincode || !mobile || !emailId || !gstinRegistration || !gstin || !entity) {
         return res.status(400).json({
-            "success":false,
-            "message":"All fields are required"
-        })
+            success: false,
+            message: "All fields are required"
+        });
     }
 
-    // Generate unique licenseID & clientID
+    // Generate unique IDs
     const licenseID = uuidv4();
     const clientID = uuidv4();
 
-    // Check if companyCode already exists (still unique)
-    const existingClient = await License.findOne({ companyCode });
+    // Check for duplicates across all unique fields
+    const duplicateCheck = await License.findOne({
+      $or: [
+        { companyCode },
+        { companyName },
+        { mobile },
+        { emailId },
+        { gstin },
+        { "entity": { $in: entity } } // check if any entity already exists
+      ]
+    });
 
-    if (existingClient) {
-      return res.status(400).json({
-        success: false,
-        message: "License with given companyCode already exists.",
-      });
+    if (duplicateCheck) {
+      let message = "Duplicate field(s) found: ";
+      if (duplicateCheck.companyCode === companyCode) message += "companyCode ";
+      if (duplicateCheck.companyName === companyName) message += "companyName ";
+      if (duplicateCheck.mobile === mobile) message += "mobile ";
+      if (duplicateCheck.emailId === emailId) message += "emailId ";
+      if (duplicateCheck.gstin === gstin) message += "gstin ";
+      if (duplicateCheck.entity.some(e => entity.includes(e))) message += "entity ";
+      
+      return res.status(400).json({ success: false, message });
     }
 
-    // Create new License document
     const license = new License({
       licenseID,
-      companyCode,
       clientID,
+      companyCode,
       subscriptionType,
       modules,
       companyName,
@@ -77,8 +88,16 @@ export const createLicense = async (req, res) => {
       message: "License created successfully",
       data: license,
     });
+
   } catch (error) {
     console.error("Error creating license:", error);
+    if (error.code === 11000) { // Mongo duplicate key error
+      const duplicateField = Object.keys(error.keyValue)[0];
+      return res.status(400).json({
+        success: false,
+        message: `${duplicateField} already exists`,
+      });
+    }
     return res.status(500).json({
       success: false,
       message: "Server error while creating license",
@@ -86,6 +105,7 @@ export const createLicense = async (req, res) => {
     });
   }
 };
+
 
 // Update License
 // export const updateLicense = async (req, res) => {
@@ -164,7 +184,7 @@ export const createLicense = async (req, res) => {
 //new update license
 export const updateLicense = async (req, res) => {
   try {
-    const { companyCode } = req.params; 
+    const { companyCode } = req.params;  // <-- matches :licenseID in route
     const updates = req.body;
 
     let license = await License.findOne({ companyCode });
@@ -176,7 +196,7 @@ export const updateLicense = async (req, res) => {
     Object.keys(updates).forEach((key) => {
       if (key === "modules" && Array.isArray(updates.modules)) {
         license.modules = updates.modules;
-      } else {
+      } else {license.modules = updates.modules; // replace modules array
         license[key] = updates[key];
       }
     });
@@ -196,7 +216,7 @@ export const getCompanyByCode = async (req, res) => {
 
     const company = await License.findOne({ companyCode })
       .select(
-        "companyCode subscriptionType modules companyName businessType contactPerson designation address city state country pincode mobile emailId gstinRegistration gstin entity -_id"
+        "companyCode subscriptionType modules companyName businessType status contactPerson designation address city state country pincode mobile emailId gstinRegistration gstin entity -_id"
       )
       .lean();
 
