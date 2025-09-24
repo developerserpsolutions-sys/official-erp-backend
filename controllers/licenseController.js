@@ -164,10 +164,10 @@ export const createLicense = async (req, res) => {
 //new update license
 export const updateLicense = async (req, res) => {
   try {
-    const { licenseID } = req.params;  // <-- matches :licenseID in route
+    const { companyCode } = req.params; 
     const updates = req.body;
 
-    let license = await License.findOne({ licenseID });
+    let license = await License.findOne({ companyCode });
     if (!license) {
       return res.status(404).json({ message: "License not found" });
     }
@@ -175,7 +175,7 @@ export const updateLicense = async (req, res) => {
     // update fields
     Object.keys(updates).forEach((key) => {
       if (key === "modules" && Array.isArray(updates.modules)) {
-        license.modules = updates.modules; // replace modules array
+        license.modules = updates.modules;
       } else {
         license[key] = updates[key];
       }
@@ -196,10 +196,10 @@ export const getCompanyByCode = async (req, res) => {
 
     const company = await License.findOne({ companyCode })
       .select(
-        "companyCode subscriptionType modules companyName businessType contactPerson designation address city state country pincode mobile emailId gstinRegistration gstin entity"
+        "companyCode subscriptionType modules companyName businessType contactPerson designation address city state country pincode mobile emailId gstinRegistration gstin entity -_id"
       )
       .lean();
-      
+
     if (!company) {
       return res.status(404).json({
         success: false,
