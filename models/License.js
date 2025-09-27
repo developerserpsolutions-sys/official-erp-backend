@@ -39,7 +39,7 @@ const LicenseSchema = new mongoose.Schema(
     },
     status: { type: String, trim: true, default: "Active" },
 
-    modules: [ModuleSchema], // ✅ uses sub-schema
+    modules: [ModuleSchema],
 
     companyName: { type: String, required: true, trim: true, unique: true },
     registrationDate: { type: Date, default: Date.now },

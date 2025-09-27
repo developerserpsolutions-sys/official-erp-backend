@@ -18,6 +18,7 @@ export const signup = async (req, res) => {
       entity,
       username,
       name,
+      role,
       mobileNo,
       email,
       department,
@@ -47,10 +48,10 @@ export const signup = async (req, res) => {
     // 4. Hash password
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    // 5. Determine role
-    let role = "Operator";
+
+    let finalRole = role || "Operator";
     if (isSuperAdmin(req)) {
-      role = "Admin";
+      finalRole = "Admin";
     }
 
     // 6. Profile image
@@ -84,7 +85,7 @@ export const signup = async (req, res) => {
       email,
       department,
       password: hashedPassword,
-      role,
+      role: finalRole,
       profileImage: finalProfileImageBase64,
       userGeoData: geoData,
     });
