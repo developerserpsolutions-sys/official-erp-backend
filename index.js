@@ -4,17 +4,12 @@ import connectCloudinary from "./config/cloudinary.js";
 import startLicenseExpiryJob from "./jobs/licenseExpiryJob.js";
 import cron from "node-cron";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 const app = express();
 
 connectDB();
 connectCloudinary();
 startLicenseExpiryJob();
-
-
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-
 
 const corsOptions = {
   origin: [
@@ -26,7 +21,11 @@ const corsOptions = {
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true
 };
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cors(corsOptions));
+app.use(cookieParser());
 
 
 //Routes

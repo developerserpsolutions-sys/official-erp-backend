@@ -13,6 +13,8 @@ export const auth = async (req, res, next) => {
         ? req.headers.authorization.replace("Bearer ", "")
         : null);
 
+        
+
     if (!token) {
       return res.status(401).json({
         success: false,
@@ -72,16 +74,8 @@ export const isSuperAdmin = (req, res, next) => {
         message: "This is a protected route for SuperAdmins only",
       });
     }
-
-    // Optional: also enforce static SUPERADMIN_ID from .env for extra protection
-    if (process.env.SUPERADMIN_ID && req.user._id.toString() !== process.env.SUPERADMIN_ID) {
-      return res.status(401).json({
-        success: false,
-        message: "Not authorized as configured SuperAdmin",
-      });
-    }
-
     next();
+    
   } catch (error) {
     return res.status(500).json({
       success: false,

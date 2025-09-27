@@ -4,12 +4,7 @@ import bcrypt from "bcrypt";
 import crypto from "crypto";
 import nodemailer from "nodemailer"; // For sending emails
 
-// ----------------------------
-// Helper: Create JWT Token
-// ----------------------------
-const createToken = (id, role) => {
-  return jwt.sign({ id, role }, process.env.JWT_SECRET, { expiresIn: "1d" });
-};
+
 
 
 //CREATE SUPERADMIN
@@ -79,36 +74,40 @@ export const superAdminLogin = async (req, res) => {
     if (!email || !password || !superAdminPassKey)
       return res.status(400).json({ message: "Email, passkey, password required" });
 
-    let admin = null;
-    // Explicitly select password
-    if(superAdminPassKey === process.env.SUPER_ADMIN_PASS_KEY){
-       admin = await SuperAdmin.findOne({ email }).select("+password");
-    }
-    if (!admin) return res.status(401).json({ message: "Invalid credentials" });
+    let superadmin = null;
 
-    const isMatch = await bcrypt.compare(password, admin.password);
+    if(superAdminPassKey === process.env.SUPER_ADMIN_PASS_KEY){
+       superadmin = await SuperAdmin.findOne({ email }).select("+password");
+    }
+    if (!superadmin) return res.status(401).json({ message: "Invalid credentials" });
+
+    const isMatch = await bcrypt.compare(password, superadmin.password);
     if (!isMatch) return res.status(401).json({ message: "Invalid credentials" });
 
-    if (!admin.isActive)
+    if (!superadmin.isActive)
       return res.status(403).json({ message: "Account is deactivated" });
 
-    // Generate JWT
-    const token = jwt.sign(
-      { id: admin._id, role: admin.role },
-      process.env.JWT_SECRET,
-      { expiresIn: "1d" }
-    );
+ 
+			const token = jwt.sign(
+				{ email: superadmin.email, id: superadmin._id, role: superadmin.role },
+				process.env.JWT_SECRET,
+				{
+					expiresIn: "24h",
+				}
+			);
 
-    res.json({
-      success: true,
-      token,
-      admin: {
-        id: admin._id,
-        username: admin.username,
-        email: admin.email,
-        role: admin.role,
-      },
-    });
+			const options = {
+				expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
+				httpOnly: true,
+			};
+
+      
+			res.cookie("token", token, options).status(200).json({
+				success: true,
+				token,
+				superadmin,
+				message: `Super Admin Login Successfully`,
+			});
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error", error: error.message });
@@ -122,9 +121,9 @@ export const superAdminLogin = async (req, res) => {
 export const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
-    const admin = await SuperAdmin.findOne({ email });
+    const superadmin = await SuperAdmin.findOne({ email });
 
-    if (!admin) {
+    if (!superadmin) {
       return res.status(404).json({ message: "No SuperAdmin with this email" });
     }
 
@@ -132,9 +131,9 @@ export const forgotPassword = async (req, res) => {
     const resetToken = crypto.randomBytes(32).toString("hex");
     const hashedToken = crypto.createHash("sha256").update(resetToken).digest("hex");
 
-    admin.resetPasswordToken = hashedToken;
-    admin.resetPasswordExpire = Date.now() + 15 * 60 * 1000; // 15 minutes
-    await admin.save({ validateBeforeSave: false });
+    superadmin.resetPasswordToken = hashedToken;
+    superadmin.resetPasswordExpire = Date.now() + 15 * 60 * 1000; // 15 minutes
+    await superadmin.save({ validateBeforeSave: false });
 
     // Email setup (use real SMTP in production)
     const transporter = nodemailer.createTransport({
@@ -154,7 +153,7 @@ export const forgotPassword = async (req, res) => {
     `;
 
     await transporter.sendMail({
-      to: admin.email,
+      to: superadmin.email,
       subject: "SuperAdmin Password Reset",
       html: message,
     });
@@ -175,21 +174,21 @@ export const resetPassword = async (req, res) => {
 
     const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
 
-    const admin = await SuperAdmin.findOne({
+    const superadmin = await SuperAdmin.findOne({
       resetPasswordToken: hashedToken,
       resetPasswordExpire: { $gt: Date.now() },
     });
 
-    if (!admin) {
+    if (!superadmin) {
       return res.status(400).json({ message: "Token invalid or expired" });
     }
 
     const salt = await bcrypt.genSalt(12);
-    admin.password = await bcrypt.hash(newPassword, salt);
-    admin.resetPasswordToken = undefined;
-    admin.resetPasswordExpire = undefined;
+    superadmin.password = await bcrypt.hash(newPassword, salt);
+    superadmin.resetPasswordToken = undefined;
+    superadmin.resetPasswordExpire = undefined;
 
-    await admin.save();
+    await superadmin.save();
 
     res.json({ success: true, message: "Password reset successful" });
   } catch (error) {
@@ -204,16 +203,16 @@ export const changePassword = async (req, res) => {
   try {
     const { oldPassword, newPassword } = req.body;
 
-    const admin = await SuperAdmin.findById(req.user.id).select("+password");
-    if (!admin) return res.status(404).json({ message: "Admin not found" });
+    const superadmin = await SuperAdmin.findById(req.user.id).select("+password");
+    if (!superadmin) return res.status(404).json({ message: "Admin not found" });
 
-    const isMatch = await admin.comparePassword(oldPassword);
+    const isMatch = await superadmin.comparePassword(oldPassword);
     if (!isMatch) return res.status(401).json({ message: "Old password is incorrect" });
 
     const salt = await bcrypt.genSalt(12);
-    admin.password = await bcrypt.hash(newPassword, salt);
+    superadmin.password = await bcrypt.hash(newPassword, salt);
 
-    await admin.save();
+    await superadmin.save();
 
     res.json({ success: true, message: "Password updated successfully" });
   } catch (error) {
