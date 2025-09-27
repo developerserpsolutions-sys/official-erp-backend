@@ -1,6 +1,6 @@
 import express from "express";
 import { createSuperAdmin,superAdminLogin,forgotPassword,resetPassword,changePassword} from "../controllers/superAdminControllers.js";
-import {auth, isSuperAdmin } from "../middleware/auth.js"
+import { isSuperAdmin } from "../middleware/auth.js"
 
 
 const router = express.Router();
