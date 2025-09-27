@@ -68,7 +68,7 @@ export const auth = async (req, res, next) => {
 // -------------------------
 export const isSuperAdmin = (req, res, next) => {
   try {
-    if (req.user.role?.toLowerCase() !== "superadmin") {
+    if (req.user.role !== "SuperAdmin") {
       return res.status(401).json({
         success: false,
         message: "This is a protected route for SuperAdmins only",
@@ -86,7 +86,7 @@ export const isSuperAdmin = (req, res, next) => {
 
 export const isAdmin = (req, res, next) => {
   try {
-    if (req.user.role?.toLowerCase() !== "admin") {
+    if (req.user.role !== "Admin") {
       return res.status(401).json({
         success: false,
         message: "This is a protected route for Admins only",
@@ -96,24 +96,58 @@ export const isAdmin = (req, res, next) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: "User role cannot be verified, please try again",
+      message: "Admin role cannot be verified, please try again",
     });
   }
 };
 
-export const isUser = (req, res, next) => {
+export const isOperator = (req, res, next) => {
   try {
-    if (req.user.role?.toLowerCase() !== "user") {
+    if (req.user.role !== "Operator") {
       return res.status(401).json({
         success: false,
-        message: "This is a protected route for Users only",
+        message: "This is a protected route for Operators only",
       });
     }
     next();
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: "User role cannot be verified, please try again",
+      message: "Operator role cannot be verified, please try again",
+    });
+  }
+};
+
+export const isExecutive = (req, res, next) => {
+  try {
+    if (req.user.role !== "Executive") {
+      return res.status(401).json({
+        success: false,
+        message: "This is a protected route for Executives only",
+      });
+    }
+    next();
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Executive role cannot be verified, please try again",
+    });
+  }
+};
+
+export const isManager = (req, res, next) => {
+  try {
+    if (req.user.role !== "Manager") {
+      return res.status(401).json({
+        success: false,
+        message: "This is a protected route for Managers only",
+      });
+    }
+    next();
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Manager role cannot be verified, please try again",
     });
   }
 };

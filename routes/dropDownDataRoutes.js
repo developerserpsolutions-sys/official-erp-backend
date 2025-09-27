@@ -1,5 +1,5 @@
 import express from "express";
-import { getDropDownData } from "../controllers/getDropDownData.js";
+import { getDropDownData } from "../controllers/getDropdownData.js";
 
 const router = express.Router();
 

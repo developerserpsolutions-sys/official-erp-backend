@@ -13,7 +13,18 @@ import { isSuperAdmin, isAdmin } from "../utils/userRoleValidation.js";
 // User Signup
 export const signup = async (req, res) => {
   try {
-    const { companyCode, entity, username, name, mobileNo, email, department, password } = req.body;
+    const {
+      companyCode,
+      entity,
+      username,
+      name,
+      mobileNo,
+      email,
+      department,
+      password,
+      profileImage,
+      userGeoData,
+    } = req.body;
 
     // 1. Check if email already exists
     const existingUser = await User.findOne({ email });
@@ -22,7 +33,7 @@ export const signup = async (req, res) => {
     }
 
     // 2. Validate license/companyCode
-    const license = await License.findOne({ companyCode }).select("clientID");
+    const license = await License.findOne({ companyCode });
     if (!license) {
       return res.status(400).json({ success: false, message: "Invalid company code" });
     }
@@ -37,13 +48,32 @@ export const signup = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 12);
 
     // 5. Determine role
-    let role = "User";
-
-    if (isSuperAdmin(req) || isAdmin(req)) {
+    let role = "Operator";
+    if (isSuperAdmin(req)) {
       role = "Admin";
     }
 
-    // 6. Create new user
+    // 6. Profile image
+    let finalProfileImageBase64 = "";
+    if (profileImage) {
+      finalProfileImageBase64 = profileImage;
+    } else {
+      const dicebearUrl = `https://api.dicebear.com/5.x/initials/svg?seed=${username}`;
+      const response = await fetch(dicebearUrl);
+      const buffer = await response.arrayBuffer();
+      finalProfileImageBase64 = `data:image/svg+xml;base64,${Buffer.from(buffer).toString("base64")}`;
+    }
+
+    // 7. Geo-location defaults
+    const geoData = {
+      countryCode: userGeoData?.countryCode || "",
+      country: userGeoData?.country || "",
+      state: userGeoData?.state || "",
+      city: userGeoData?.city || "",
+      pincode: userGeoData?.pincode || "",
+    };
+
+    // 8. Create new user
     const newUser = new User({
       clientID,
       entity,
@@ -55,11 +85,13 @@ export const signup = async (req, res) => {
       department,
       password: hashedPassword,
       role,
+      profileImage: finalProfileImageBase64,
+      userGeoData: geoData,
     });
 
     await newUser.save();
 
-    // 7. Return response
+    // 9. Return response
     return res.status(201).json({
       success: true,
       message: "User registered successfully",
@@ -72,6 +104,7 @@ export const signup = async (req, res) => {
         clientID: newUser.clientID,
         companyCode: newUser.companyCode,
         entity: newUser.entity,
+        userGeoData: newUser.userGeoData, // include geo-data in response
       },
     });
   } catch (error) {

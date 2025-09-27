@@ -39,7 +39,7 @@ export const createSuperAdmin = async (req, res) => {
       email,
       password: hashedPassword,
       phone: phone || null,
-      role: "superadmin",
+      role: "SuperAdmin",
       isActive: true,
     });
 
