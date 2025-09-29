@@ -7,7 +7,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import licenseRoutes from "./routes/licenseRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
-import dropDownDataRoutes from "./routes/dropDownDataRoutes.js";
+import dropDownDataRoutes from "./routes/erpRoutes.js";
 import superAdminRoutes from "./routes/superAdminRoutes.js";
 import License from "./models/License.js";
 
@@ -36,7 +36,7 @@ app.use(cookieParser());
 // v1 routes
 app.use("/api/v1/license", licenseRoutes);
 app.use("/api/v1/user", userRoutes);
-app.use("/api/v1/get-dropdown-data", dropDownDataRoutes);
+app.use("/api/v1/erp", dropDownDataRoutes);
 app.use("/api/v1/super-admin", superAdminRoutes);
 
 app.get("/", (req, res) => {
