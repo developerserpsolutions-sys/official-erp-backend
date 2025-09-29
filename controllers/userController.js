@@ -146,7 +146,7 @@ export const login = async (req, res) => {
     }
 
     // 3. Check password
-    const isMatch = await bcrypt.compare(password, user.password);
+    const isMatch = bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({
         success: false,
@@ -158,26 +158,20 @@ export const login = async (req, res) => {
     const token = jwt.sign(
       { id: user._id, role: user.role, companyCode: user.companyCode, entity: user.entity },
       process.env.JWT_SECRET || "secretKey",
-      { expiresIn: "1d" }
+      { expiresIn: "24hr" }
     );
 
-    // 5. Respond with user data
-    return res.json({
-      success: true,
-      message: "Login successful",
-      token,
-      user: {
-        id: user._id,
-        username: user.username,
-        email: user.email,
-        mobileNo: user.mobileNo,
-        role: user.role,
-        companyCode: user.companyCode,
-        entity: user.entity,
-        department: user.department
-      }
-    });
+    const options = {
+      expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
+      httponly: true,
+    }
 
+    res.cookie("token", token, options).status(200).json({
+      success: true,
+      token,
+      user,
+      message: `User Login Successfully`
+    })
   } catch (error) {
     console.error("Login Error:", error);
     return res.status(500).json({
